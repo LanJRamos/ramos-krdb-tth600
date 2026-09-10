@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Series | Kamen Rider Database</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <div class="logo">
+            🏍 KAMEN RIDER DATABASE
+        </div>
+
+        <nav>
+            <a href="index.html">Dashboard</a>
+            <a href="series.html">Series</a>
+            <a href="series-form.html" id="add-series-link">Add Series</a>
+        </nav>
+
+    </header>
+
+
+    <main class="container">
+        <section class="form-section">
+
+            <h1 id="form-title">Add Series</h1>
+
+            <p class="form-description">
+                Enter the information for a Kamen Rider series.
+            </p>
+
+
+            <form id="series-form">
+
+                <!-- Series Title -->
+                <div class="form-group">
+
+                    <label for="title">
+                        Series Title
+                    </label>
+
+                    <input type="text" id="title" placeholder="e.g. Kamen Rider Kuuga" required>
+
+                </div>
+
+
+                <!-- Start Year / Era -->
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="start-year">
+                            Start Year
+                        </label>
+
+                        <input type="number" id="start-year" placeholder="2000" min="1971" required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="era">
+                            Era
+                        </label>
+
+                        <select id="era" required>
+
+                            <option value="">
+                                Select Era
+                            </option>
+
+                            <option value="Showa">
+                                Showa
+                            </option>
+
+                            <option value="Heisei">
+                                Heisei
+                            </option>
+
+                            <option value="Reiwa">
+                                Reiwa
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- End Year -->
+                <div class="form-group">
+
+                    <label for="end-year">
+                        End Year
+                    </label>
+
+                    <input type="number" id="end-year" placeholder="e.g. 2001" min="1971">
+
+                    <label class="checkbox-label">
+
+                        <input type="checkbox" id="still-airing">
+
+                        Still Airing
+
+                    </label>
+
+                </div>
+
+
+                <!-- Episodes -->
+                <div class="form-group">
+
+                    <label for="episodes">
+                        Episodes Released
+                    </label>
+
+                    <input type="number" id="episodes" placeholder="49" min="1" required>
+
+                </div>
+
+
+                <!-- Theme -->
+                <div class="form-group">
+
+                    <label for="theme">
+                        Theme
+                    </label>
+
+                    <input type="text" id="theme" placeholder="e.g. Detectives / Mystery" required>
+
+                </div>
+
+
+                <!-- Related Media -->
+                <div class="form-group">
+
+                    <label for="related-media">
+                        Related Media
+                    </label>
+
+                    <input type="number" id="related-media" placeholder="e.g. 5" min="0" required>
+
+                    <small class="input-help">
+                        Number of related movies, specials, or spin-offs.
+                    </small>
+
+                </div>
+
+
+                <!-- Buttons -->
+                <div class="form-actions">
+
+                    <button type="submit" class="action-button">
+                        <span id="submit-text">Save Series</span>
+                    </button>
+
+                    <a href="series.html" class="cancel-button" onclick="localStorage.removeItem('editingSeriesId')">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+    </main>
+
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

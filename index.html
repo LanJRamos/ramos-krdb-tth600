@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamen Rider Series Database</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            🏍 KAMEN RIDER DATABASE
+        </div>
+
+        <nav>
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="series.html">Series</a>
+            <a href="series-form.html" id="add-series-link">Add Series</a>
+        </nav>
+    </header>
+
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>Kamen Rider Database</h1>
+            <p>
+                A simple information system for managing Kamen Rider series.
+            </p>
+        </section>
+
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <span class="stat-label">Total Series</span>
+                <span class="stat-number" id="total-series">0</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Eras</span>
+                <span class="stat-number" id="total-eras">0</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Latest Series</span>
+                <span class="stat-number" id="latest-year">-</span>
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-actions">
+
+            <a href="series.html" class="action-button">
+                View Series
+            </a>
+
+            <a href="series-form.html" class="action-button" onclick="localStorage.removeItem('editingSeriesId')">
+                + Add Series
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
