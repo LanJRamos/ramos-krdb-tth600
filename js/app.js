@@ -1,5 +1,5 @@
 // ========================================
-// KAMEN RIDER DATABASE
+// KAMEN RIDER WATCH TRACKER
 // Main JavaScript File
 // ========================================
 
@@ -15,9 +15,10 @@ const defaultSeries = [
         startYear: 2000,
         endYear: 2001,
         era: "Heisei",
-        episodes: 49,
+        episodesReleased: 49,
         theme: "Archaeology / Insects",
-        relatedMedia: 2
+        status: "Completed",
+        watchedEpisode: 49
     },
     {
         id: 2,
@@ -25,19 +26,21 @@ const defaultSeries = [
         startYear: 2009,
         endYear: 2010,
         era: "Heisei",
-        episodes: 49,
+        episodesReleased: 49,
         theme: "Detectives / Mystery",
-        relatedMedia: 5
+        status: "Watching",
+        watchedEpisode: 23
     },
     {
         id: 3,
         title: "Kamen Rider Gavv",
         startYear: 2024,
-        endYear: "Still Airing",
+        endYear: 2025,
         era: "Reiwa",
-        episodes: 50,
+        episodesReleased: 50,
         theme: "Sweets / Monsters",
-        relatedMedia: 3
+        status: "Plan to Watch",
+        watchedEpisode: 0
     }
 ];
 
@@ -48,7 +51,8 @@ const defaultSeries = [
 
 function getSeries() {
 
-    const storedSeries = localStorage.getItem("kamenRiderSeries");
+    const storedSeries =
+        localStorage.getItem("kamenRiderSeries");
 
     if (storedSeries) {
         return JSON.parse(storedSeries);
@@ -78,18 +82,45 @@ function saveSeries(series) {
 
 
 // ========================================
+// CALCULATE WATCH PROGRESS
+// ========================================
+
+function calculateProgress(
+    watchedEpisode,
+    episodesReleased
+) {
+
+    if (episodesReleased <= 0) {
+        return 0;
+    }
+
+    const progress =
+        (watchedEpisode / episodesReleased) * 100;
+
+    return Math.min(progress, 100);
+
+}
+
+
+// ========================================
 // DISPLAY SERIES
 // ========================================
 
-function displaySeries(seriesToDisplay = getSeries()) {
+function displaySeries(
+    seriesToDisplay = getSeries()
+) {
 
-    const container = document.getElementById("series-container");
+    const container =
+        document.getElementById(
+            "series-container"
+        );
 
     if (!container) {
         return;
     }
 
     container.innerHTML = "";
+
 
     if (seriesToDisplay.length === 0) {
 
@@ -105,29 +136,84 @@ function displaySeries(seriesToDisplay = getSeries()) {
 
     seriesToDisplay.forEach(series => {
 
-        const card = document.createElement("div");
+        const progress =
+            calculateProgress(
+                series.watchedEpisode,
+                series.episodesReleased
+            );
 
-        card.className = "series-card";
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "series-card";
+
 
         card.innerHTML = `
-            <h2>${series.title}</h2>
+
+            <h2>
+                ${series.title}
+            </h2>
+
 
             <p class="series-info">
                 ${series.startYear} — ${series.endYear}
                 • ${series.era}
             </p>
 
-            <p class="series-info">
-                ${series.episodes} Episodes Released
-            </p>
 
             <p class="series-info">
-                Theme: ${series.theme}
+                Episodes Released:
+                ${series.episodesReleased}
             </p>
 
+
             <p class="series-info">
-                Related Media: ${series.relatedMedia}
+                Theme:
+                ${series.theme}
             </p>
+
+
+            <p class="series-info">
+                Status:
+                ${series.status}
+            </p>
+
+
+            <div class="watch-progress">
+
+                <div class="progress-header">
+
+                    <span>
+                        Watched Episode
+                    </span>
+
+                    <span>
+                        ${series.watchedEpisode}
+                        /
+                        ${series.episodesReleased}
+                    </span>
+
+                </div>
+
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+                        style="width: ${progress}%"
+                    ></div>
+
+                </div>
+
+
+                <span class="progress-percentage">
+                    ${progress.toFixed(0)}%
+                </span>
+
+            </div>
+
 
             <div class="card-actions">
 
@@ -138,6 +224,7 @@ function displaySeries(seriesToDisplay = getSeries()) {
                     Edit
                 </button>
 
+
                 <button
                     class="delete-button"
                     onclick="deleteSeries(${series.id})"
@@ -146,7 +233,9 @@ function displaySeries(seriesToDisplay = getSeries()) {
                 </button>
 
             </div>
+
         `;
+
 
         container.appendChild(card);
 
@@ -165,54 +254,104 @@ function handleFormSubmit(event) {
 
 
     const title =
-        document.getElementById("title").value.trim();
+        document.getElementById(
+            "title"
+        ).value.trim();
+
 
     const startYear =
-        Number(document.getElementById("start-year").value);
+        Number(
+            document.getElementById(
+                "start-year"
+            ).value
+        );
+
 
     const era =
-        document.getElementById("era").value;
+        document.getElementById(
+            "era"
+        ).value;
+
 
     const endYearInput =
-        document.getElementById("end-year");
+        document.getElementById(
+            "end-year"
+        );
+
 
     const stillAiring =
-        document.getElementById("still-airing").checked;
+        document.getElementById(
+            "still-airing"
+        ).checked;
+
 
     const endYear =
         stillAiring
             ? "Still Airing"
             : Number(endYearInput.value);
 
-    const episodes =
-        Number(document.getElementById("episodes").value);
+
+    const episodesReleased =
+        Number(
+            document.getElementById(
+                "episodes"
+            ).value
+        );
+
 
     const theme =
-        document.getElementById("theme").value.trim();
-
-    const relatedMedia =
-        Number(document.getElementById("related-media").value);
-
-
-    let series = getSeries();
+        document.getElementById(
+            "theme"
+        ).value.trim();
 
 
-    // Check whether we're editing an existing series
+    const status =
+        document.getElementById(
+            "status"
+        ).value;
+
+
+    let watchedEpisode =
+        Number(
+            document.getElementById(
+                "watched-episode"
+            ).value
+        );
+
+
+    // Prevent watched episodes from exceeding
+    // the number of released episodes.
+    watchedEpisode =
+        Math.min(
+            watchedEpisode,
+            episodesReleased
+        );
+
+
+    let series =
+        getSeries();
+
+
     const editingId =
-        localStorage.getItem("editingSeriesId");
+        localStorage.getItem(
+            "editingSeriesId"
+        );
 
 
     // ========================================
-    // UPDATE EXISTING SERIES
+    // UPDATE
     // ========================================
 
     if (editingId) {
 
-        const id = Number(editingId);
+        const id =
+            Number(editingId);
 
-        const index = series.findIndex(
-            item => item.id === id
-        );
+
+        const index =
+            series.findIndex(
+                item => item.id === id
+            );
 
 
         if (index !== -1) {
@@ -229,30 +368,42 @@ function handleFormSubmit(event) {
 
                 era: era,
 
-                episodes: episodes,
+                episodesReleased:
+                    episodesReleased,
 
                 theme: theme,
 
-                relatedMedia: relatedMedia
+                status: status,
+
+                watchedEpisode:
+                    watchedEpisode
 
             };
 
         }
 
-        localStorage.removeItem("editingSeriesId");
+
+        localStorage.removeItem(
+            "editingSeriesId"
+        );
 
     }
 
 
     // ========================================
-    // CREATE NEW SERIES
+    // CREATE
     // ========================================
 
     else {
 
-        const newId = series.length > 0
-            ? Math.max(...series.map(item => item.id)) + 1
-            : 1;
+        const newId =
+            series.length > 0
+                ? Math.max(
+                    ...series.map(
+                        item => item.id
+                    )
+                ) + 1
+                : 1;
 
 
         const newSeries = {
@@ -267,11 +418,15 @@ function handleFormSubmit(event) {
 
             era: era,
 
-            episodes: episodes,
+            episodesReleased:
+                episodesReleased,
 
             theme: theme,
 
-            relatedMedia: relatedMedia
+            status: status,
+
+            watchedEpisode:
+                watchedEpisode
 
         };
 
@@ -283,7 +438,9 @@ function handleFormSubmit(event) {
 
     saveSeries(series);
 
-    window.location.href = "series.html";
+
+    window.location.href =
+        "series.html";
 
 }
 
@@ -294,11 +451,14 @@ function handleFormSubmit(event) {
 
 function editSeries(id) {
 
-    const series = getSeries();
+    const series =
+        getSeries();
 
-    const selectedSeries = series.find(
-        item => item.id === id
-    );
+
+    const selectedSeries =
+        series.find(
+            item => item.id === id
+        );
 
 
     if (!selectedSeries) {
@@ -312,7 +472,8 @@ function editSeries(id) {
     );
 
 
-    window.location.href = "series-form.html";
+    window.location.href =
+        "series-form.html";
 
 }
 
@@ -324,7 +485,9 @@ function editSeries(id) {
 function loadEditData() {
 
     const form =
-        document.getElementById("series-form");
+        document.getElementById(
+            "series-form"
+        );
 
 
     if (!form) {
@@ -333,7 +496,9 @@ function loadEditData() {
 
 
     const editingId =
-        localStorage.getItem("editingSeriesId");
+        localStorage.getItem(
+            "editingSeriesId"
+        );
 
 
     if (!editingId) {
@@ -341,11 +506,15 @@ function loadEditData() {
     }
 
 
-    const series = getSeries();
+    const series =
+        getSeries();
 
-    const selectedSeries = series.find(
-        item => item.id === Number(editingId)
-    );
+
+    const selectedSeries =
+        series.find(
+            item =>
+                item.id === Number(editingId)
+        );
 
 
     if (!selectedSeries) {
@@ -353,55 +522,99 @@ function loadEditData() {
     }
 
 
-    // Change page text
-
-    document.getElementById("form-title").textContent =
+    document.getElementById(
+        "form-title"
+    ).textContent =
         "Edit Series";
 
-    document.getElementById("submit-text").textContent =
+
+    document.getElementById(
+        "submit-text"
+    ).textContent =
         "Update Series";
 
 
-    // Fill form
-
-    document.getElementById("title").value =
+    document.getElementById(
+        "title"
+    ).value =
         selectedSeries.title;
 
-    document.getElementById("start-year").value =
+
+    document.getElementById(
+        "start-year"
+    ).value =
         selectedSeries.startYear;
 
-    document.getElementById("era").value =
+
+    document.getElementById(
+        "era"
+    ).value =
         selectedSeries.era;
 
-    document.getElementById("episodes").value =
-        selectedSeries.episodes;
 
-    document.getElementById("theme").value =
+    document.getElementById(
+        "episodes"
+    ).value =
+        selectedSeries.episodesReleased;
+
+
+    document.getElementById(
+        "theme"
+    ).value =
         selectedSeries.theme;
 
-    document.getElementById("related-media").value =
-        selectedSeries.relatedMedia;
+
+    document.getElementById(
+        "status"
+    ).value =
+        selectedSeries.status;
 
 
-    // Handle End Year
+    document.getElementById(
+        "watched-episode"
+    ).value =
+        selectedSeries.watchedEpisode;
 
-    if (selectedSeries.endYear === "Still Airing") {
 
-        document.getElementById("still-airing").checked = true;
+    // End Year
 
-        document.getElementById("end-year").disabled = true;
+    if (
+        selectedSeries.endYear ===
+        "Still Airing"
+    ) {
 
-        document.getElementById("end-year").value = "";
+        document.getElementById(
+            "still-airing"
+        ).checked = true;
+
+
+        document.getElementById(
+            "end-year"
+        ).disabled = true;
+
+
+        document.getElementById(
+            "end-year"
+        ).value = "";
 
     }
 
+
     else {
 
-        document.getElementById("still-airing").checked = false;
+        document.getElementById(
+            "still-airing"
+        ).checked = false;
 
-        document.getElementById("end-year").disabled = false;
 
-        document.getElementById("end-year").value =
+        document.getElementById(
+            "end-year"
+        ).disabled = false;
+
+
+        document.getElementById(
+            "end-year"
+        ).value =
             selectedSeries.endYear;
 
     }
@@ -414,13 +627,21 @@ function loadEditData() {
 // ========================================
 
 const stillAiringCheckbox =
-    document.getElementById("still-airing");
+    document.getElementById(
+        "still-airing"
+    );
+
 
 const endYearInput =
-    document.getElementById("end-year");
+    document.getElementById(
+        "end-year"
+    );
 
 
-if (stillAiringCheckbox && endYearInput) {
+if (
+    stillAiringCheckbox &&
+    endYearInput
+) {
 
     stillAiringCheckbox.addEventListener(
         "change",
@@ -428,15 +649,19 @@ if (stillAiringCheckbox && endYearInput) {
 
             if (this.checked) {
 
-                endYearInput.disabled = true;
+                endYearInput.disabled =
+                    true;
 
-                endYearInput.value = "";
+                endYearInput.value =
+                    "";
 
             }
 
+
             else {
 
-                endYearInput.disabled = false;
+                endYearInput.disabled =
+                    false;
 
             }
 
@@ -452,11 +677,14 @@ if (stillAiringCheckbox && endYearInput) {
 
 function deleteSeries(id) {
 
-    const series = getSeries();
+    const series =
+        getSeries();
 
-    const selectedSeries = series.find(
-        item => item.id === id
-    );
+
+    const selectedSeries =
+        series.find(
+            item => item.id === id
+        );
 
 
     if (!selectedSeries) {
@@ -464,9 +692,10 @@ function deleteSeries(id) {
     }
 
 
-    const confirmation = confirm(
-        `Are you sure you want to delete "${selectedSeries.title}"?`
-    );
+    const confirmation =
+        confirm(
+            `Are you sure you want to delete "${selectedSeries.title}"?`
+        );
 
 
     if (!confirmation) {
@@ -474,14 +703,18 @@ function deleteSeries(id) {
     }
 
 
-    const updatedSeries = series.filter(
-        item => item.id !== id
-    );
+    const updatedSeries =
+        series.filter(
+            item => item.id !== id
+        );
 
 
     saveSeries(updatedSeries);
 
+
     displaySeries(updatedSeries);
+
+    displayCurrentlyWatching();
 
     updateDashboard();
 
@@ -495,7 +728,9 @@ function deleteSeries(id) {
 function searchSeries() {
 
     const searchInput =
-        document.getElementById("search-input");
+        document.getElementById(
+            "search-input"
+        );
 
 
     if (!searchInput) {
@@ -504,28 +739,306 @@ function searchSeries() {
 
 
     const searchTerm =
-        searchInput.value.toLowerCase().trim();
+        searchInput.value
+            .toLowerCase()
+            .trim();
 
 
-    const series = getSeries();
+    const series =
+        getSeries();
 
 
-    const filteredSeries = series.filter(item =>
+    const filteredSeries =
+        series.filter(item =>
 
-        item.title.toLowerCase().includes(searchTerm) ||
+            item.title
+                .toLowerCase()
+                .includes(searchTerm)
 
-        item.era.toLowerCase().includes(searchTerm) ||
+            ||
 
-        item.theme.toLowerCase().includes(searchTerm) ||
+            item.era
+                .toLowerCase()
+                .includes(searchTerm)
 
-        item.startYear.toString().includes(searchTerm) ||
+            ||
 
-        item.endYear.toString().toLowerCase().includes(searchTerm)
+            item.theme
+                .toLowerCase()
+                .includes(searchTerm)
 
+            ||
+
+            item.status
+                .toLowerCase()
+                .includes(searchTerm)
+
+            ||
+
+            item.startYear
+                .toString()
+                .includes(searchTerm)
+
+            ||
+
+            item.endYear
+                .toString()
+                .toLowerCase()
+                .includes(searchTerm)
+
+        );
+
+
+    displaySeries(
+        filteredSeries
     );
 
+}
 
-    displaySeries(filteredSeries);
+
+// ========================================
+// DISPLAY CURRENTLY WATCHING
+// ========================================
+
+function displayCurrentlyWatching() {
+
+    const container =
+        document.getElementById(
+            "watching-container"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const series =
+        getSeries();
+
+
+    const watching =
+        series.filter(
+            item =>
+                item.status === "Watching"
+        );
+
+
+    container.innerHTML = "";
+
+
+    // No currently watching series
+
+    if (watching.length === 0) {
+
+        container.innerHTML = `
+            <p class="no-results">
+                You are not currently watching any series.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    // Display currently watching series
+
+    watching.forEach(series => {
+
+        const progress =
+            calculateProgress(
+                series.watchedEpisode,
+                series.episodesReleased
+            );
+
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+
+        card.className =
+            "series-card";
+
+
+        card.innerHTML = `
+
+            <h2>
+                ${series.title}
+            </h2>
+
+
+            <p class="series-info">
+                ${series.startYear} —
+                ${series.endYear}
+                • ${series.era}
+            </p>
+
+
+            <p class="series-info">
+                Episodes Released:
+                ${series.episodesReleased}
+            </p>
+
+
+            <p class="series-info">
+                Theme:
+                ${series.theme}
+            </p>
+
+
+            <!-- Episode Tracking -->
+
+            <div class="episode-tracking">
+
+                <span class="episode-label">
+                    Watched Episode
+                </span>
+
+
+                <div class="episode-controls">
+
+                    <button
+                        class="episode-button"
+                        onclick="changeWatchedEpisode(${series.id}, -1)"
+                    >
+                        −
+                    </button>
+
+
+                    <span class="episode-count">
+                        ${series.watchedEpisode}
+                        /
+                        ${series.episodesReleased}
+                    </span>
+
+
+                    <button
+                        class="episode-button"
+                        onclick="changeWatchedEpisode(${series.id}, 1)"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Progress -->
+
+            <div class="watch-progress">
+
+                <div class="progress-header">
+
+                    <span>
+                        Watch Progress
+                    </span>
+
+                    <span>
+                        ${progress.toFixed(0)}%
+                    </span>
+
+                </div>
+
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+                        style="width: ${progress}%"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Full Edit -->
+
+            <div class="card-actions">
+
+                <button
+                    class="edit-button"
+                    onclick="editSeries(${series.id})"
+                >
+                    Update Progress
+                </button>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+// ========================================
+// CHANGE WATCHED EPISODE
+// ========================================
+
+function changeWatchedEpisode(
+    id,
+    amount
+) {
+
+    const series =
+        getSeries();
+
+
+    const selectedSeries =
+        series.find(
+            item => item.id === id
+        );
+
+
+    if (!selectedSeries) {
+        return;
+    }
+
+
+    let newEpisode =
+        selectedSeries.watchedEpisode +
+        amount;
+
+
+    // Prevent going below 0
+
+    newEpisode =
+        Math.max(
+            newEpisode,
+            0
+        );
+
+
+    // Prevent going above released episodes
+
+    newEpisode =
+        Math.min(
+            newEpisode,
+            selectedSeries.episodesReleased
+        );
+
+
+    selectedSeries.watchedEpisode =
+        newEpisode;
+
+
+    saveSeries(series);
+
+
+    // Refresh the dashboard
+
+    displayCurrentlyWatching();
+
+    updateDashboard();
 
 }
 
@@ -536,52 +1049,68 @@ function searchSeries() {
 
 function updateDashboard() {
 
-    const series = getSeries();
+    const series =
+        getSeries();
 
 
     const totalSeries =
-        document.getElementById("total-series");
-
-    const totalEras =
-        document.getElementById("total-eras");
-
-    const latestYear =
-        document.getElementById("latest-year");
-
-
-    if (!totalSeries || !totalEras || !latestYear) {
-        return;
-    }
-
-
-    totalSeries.textContent =
-        series.length;
-
-
-    const eras = [
-        ...new Set(series.map(item => item.era))
-    ];
-
-
-    totalEras.textContent =
-        eras.length;
-
-
-    if (series.length > 0) {
-
-        const newest = Math.max(
-            ...series.map(item => item.startYear)
+        document.getElementById(
+            "total-series"
         );
 
-        latestYear.textContent =
-            newest;
+
+    const watchingSeries =
+        document.getElementById(
+            "watching-series"
+        );
+
+
+    const completedSeries =
+        document.getElementById(
+            "completed-series"
+        );
+
+
+    // Total Series
+
+    if (totalSeries) {
+
+        totalSeries.textContent =
+            series.length;
 
     }
 
-    else {
 
-        latestYear.textContent =
-            "-";
+    // Currently Watching
+
+    if (watchingSeries) {
+
+        const watching =
+            series.filter(
+                item =>
+                    item.status === "Watching"
+            );
+
+
+        watchingSeries.textContent =
+            watching.length;
+
+    }
+
+
+    // Completed
+
+    if (completedSeries) {
+
+        const completed =
+            series.filter(
+                item =>
+                    item.status === "Completed"
+            );
+
+
+        completedSeries.textContent =
+            completed.length;
 
     }
 
@@ -596,7 +1125,9 @@ function updateDashboard() {
 // Search
 
 const searchInput =
-    document.getElementById("search-input");
+    document.getElementById(
+        "search-input"
+    );
 
 
 if (searchInput) {
@@ -612,7 +1143,9 @@ if (searchInput) {
 // Form
 
 const seriesForm =
-    document.getElementById("series-form");
+    document.getElementById(
+        "series-form"
+    );
 
 
 if (seriesForm) {
@@ -628,7 +1161,9 @@ if (seriesForm) {
 // Add Series navigation link
 
 const addSeriesLink =
-    document.getElementById("add-series-link");
+    document.getElementById(
+        "add-series-link"
+    );
 
 
 if (addSeriesLink) {
@@ -652,6 +1187,8 @@ if (addSeriesLink) {
 // ========================================
 
 displaySeries();
+
+displayCurrentlyWatching();
 
 loadEditData();
 

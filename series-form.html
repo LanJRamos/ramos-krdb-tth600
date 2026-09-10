@@ -2,36 +2,56 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Series | Kamen Rider Database</title>
+
+    <title>Add Series | Kamen Rider Watch Tracker</title>
+
     <link rel="stylesheet" href="css/style.css">
+
 </head>
+
 
 <body>
 
+    <!-- NAVIGATION -->
     <header class="navbar">
 
         <div class="logo">
-            🏍 KAMEN RIDER DATABASE
+            🏍 KAMEN RIDER WATCH TRACKER
         </div>
 
         <nav>
-            <a href="index.html">Dashboard</a>
-            <a href="series.html">Series</a>
-            <a href="series-form.html" id="add-series-link">Add Series</a>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="series.html">
+                My Series
+            </a>
+
+            <a href="series-form.html" id="add-series-link" class="active">
+                Add Series
+            </a>
+
         </nav>
 
     </header>
 
 
     <main class="container">
+
+        <!-- FORM -->
         <section class="form-section">
 
-            <h1 id="form-title">Add Series</h1>
+            <h1 id="form-title">
+                Add Series
+            </h1>
 
             <p class="form-description">
-                Enter the information for a Kamen Rider series.
+                Add a Kamen Rider series to your watch tracker.
             </p>
 
 
@@ -114,7 +134,7 @@
                 </div>
 
 
-                <!-- Episodes -->
+                <!-- Episodes Released -->
                 <div class="form-group">
 
                     <label for="episodes">
@@ -138,17 +158,51 @@
                 </div>
 
 
-                <!-- Related Media -->
+                <!-- Watch Status -->
                 <div class="form-group">
 
-                    <label for="related-media">
-                        Related Media
+                    <label for="status">
+                        Watch Status
                     </label>
 
-                    <input type="number" id="related-media" placeholder="e.g. 5" min="0" required>
+                    <select id="status" required>
+
+                        <option value="">
+                            Select Status
+                        </option>
+
+                        <option value="Plan to Watch">
+                            Plan to Watch
+                        </option>
+
+                        <option value="Watching">
+                            Watching
+                        </option>
+
+                        <option value="On Hold">
+                            On Hold
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Watched Episode -->
+                <div class="form-group">
+
+                    <label for="watched-episode">
+                        Watched Episode
+                    </label>
+
+                    <input type="number" id="watched-episode" placeholder="0" min="0" required>
 
                     <small class="input-help">
-                        Number of related movies, specials, or spin-offs.
+                        Enter the latest episode you have completely watched.
                     </small>
 
                 </div>
@@ -158,8 +212,13 @@
                 <div class="form-actions">
 
                     <button type="submit" class="action-button">
-                        <span id="submit-text">Save Series</span>
+
+                        <span id="submit-text">
+                            Save Series
+                        </span>
+
                     </button>
+
 
                     <a href="series.html" class="cancel-button" onclick="localStorage.removeItem('editingSeriesId')">
                         Cancel
@@ -170,6 +229,7 @@
             </form>
 
         </section>
+
     </main>
 
 
