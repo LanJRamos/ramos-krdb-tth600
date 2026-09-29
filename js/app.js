@@ -9,39 +9,7 @@
 // ========================================
 
 const defaultSeries = [
-    {
-        id: 1,
-        title: "Kamen Rider Kuuga",
-        startYear: 2000,
-        endYear: 2001,
-        era: "Heisei",
-        episodesReleased: 49,
-        theme: "Archaeology / Insects",
-        status: "Completed",
-        watchedEpisode: 49
-    },
-    {
-        id: 2,
-        title: "Kamen Rider W",
-        startYear: 2009,
-        endYear: 2010,
-        era: "Heisei",
-        episodesReleased: 49,
-        theme: "Detectives / Mystery",
-        status: "Watching",
-        watchedEpisode: 23
-    },
-    {
-        id: 3,
-        title: "Kamen Rider Gavv",
-        startYear: 2024,
-        endYear: 2025,
-        era: "Reiwa",
-        episodesReleased: 50,
-        theme: "Sweets / Monsters",
-        status: "Plan to Watch",
-        watchedEpisode: 0
-    }
+
 ];
 
 
@@ -63,7 +31,7 @@ function getSeries() {
         JSON.stringify(defaultSeries)
     );
 
-    return defaultSeries;
+    return [];
 }
 
 
@@ -248,7 +216,7 @@ function displaySeries(
 // ADD / EDIT SERIES
 // ========================================
 
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
 
     event.preventDefault();
 
@@ -432,7 +400,21 @@ function handleFormSubmit(event) {
 
 
         series.push(newSeries);
+        
+        const response = await fetch("/api/series", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newSeries)
+        });
 
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert(result.message);
+            return;
+        }
     }
 
 
