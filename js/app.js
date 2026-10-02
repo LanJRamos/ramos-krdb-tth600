@@ -8,9 +8,7 @@
 // INITIAL DATA
 // ========================================
 
-const defaultSeries = [
-
-];
+const defaultSeries = [];
 
 
 // ========================================
@@ -50,6 +48,68 @@ function saveSeries(series) {
 
 
 // ========================================
+// LOAD SERIES FROM DATABASE
+// ========================================
+
+async function loadSeriesFromDatabase() {
+
+    try {
+
+        const response = await fetch("/api/series");
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            console.error(data.message);
+
+            return;
+
+        }
+
+
+        const series = data.map(item => ({
+
+            id: item.id,
+
+            title: item.title,
+
+            startYear: item.start_year,
+
+            endYear: item.end_year,
+
+            era: item.era,
+
+            episodesReleased:
+                item.episodes_released,
+
+            theme: item.theme,
+
+            status: item.status,
+
+            watchedEpisode:
+                item.watched_episode
+
+        }));
+
+
+        saveSeries(series);
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Failed to load series from database:",
+            error
+        );
+
+    }
+
+}
+
+
+// ========================================
 // CALCULATE WATCH PROGRESS
 // ========================================
 
@@ -62,8 +122,10 @@ function calculateProgress(
         return 0;
     }
 
+
     const progress =
         (watchedEpisode / episodesReleased) * 100;
+
 
     return Math.min(progress, 100);
 
@@ -83,9 +145,11 @@ function displaySeries(
             "series-container"
         );
 
+
     if (!container) {
         return;
     }
+
 
     container.innerHTML = "";
 
@@ -113,6 +177,7 @@ function displaySeries(
 
         const card =
             document.createElement("div");
+
 
         card.className =
             "series-card";
@@ -289,6 +354,7 @@ async function handleFormSubmit(event) {
 
     // Prevent watched episodes from exceeding
     // the number of released episodes.
+
     watchedEpisode =
         Math.min(
             watchedEpisode,
@@ -312,50 +378,86 @@ async function handleFormSubmit(event) {
 
     if (editingId) {
 
-        const id =
-            Number(editingId);
+    const id =
+        Number(editingId);
 
 
-        const index =
-            series.findIndex(
-                item => item.id === id
-            );
+    const updatedSeries = {
+
+        id: id,
+
+        title: title,
+
+        startYear: startYear,
+
+        endYear: endYear,
+
+        era: era,
+
+        episodesReleased:
+            episodesReleased,
+
+        theme: theme,
+
+        status: status,
+
+        watchedEpisode:
+            watchedEpisode
+
+    };
 
 
-        if (index !== -1) {
+    const response =
+        await fetch(
+            `/api/series/${id}`,
+            {
+                method: "PUT",
 
-            series[index] = {
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-                id: id,
-
-                title: title,
-
-                startYear: startYear,
-
-                endYear: endYear,
-
-                era: era,
-
-                episodesReleased:
-                    episodesReleased,
-
-                theme: theme,
-
-                status: status,
-
-                watchedEpisode:
-                    watchedEpisode
-
-            };
-
-        }
-
-
-        localStorage.removeItem(
-            "editingSeriesId"
+                body:
+                    JSON.stringify(
+                        updatedSeries
+                    )
+            }
         );
 
+
+    const result =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        alert(result.message);
+
+        return;
+
     }
+
+
+    const index =
+        series.findIndex(
+            item => item.id === id
+        );
+
+
+    if (index !== -1) {
+
+        series[index] =
+            updatedSeries;
+
+    }
+
+
+    localStorage.removeItem(
+        "editingSeriesId"
+    );
+
+}
 
 
     // ========================================
@@ -364,19 +466,7 @@ async function handleFormSubmit(event) {
 
     else {
 
-        const newId =
-            series.length > 0
-                ? Math.max(
-                    ...series.map(
-                        item => item.id
-                    )
-                ) + 1
-                : 1;
-
-
         const newSeries = {
-
-            id: newId,
 
             title: title,
 
@@ -399,22 +489,48 @@ async function handleFormSubmit(event) {
         };
 
 
-        series.push(newSeries);
-        
-        const response = await fetch("/api/series", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(newSeries)
-        });
+        const response =
+            await fetch(
+                "/api/series",
+                {
+                    method: "POST",
 
-        const result = await response.json();
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            newSeries
+                        )
+                }
+            );
+
+
+        const result =
+            await response.json();
+
 
         if (!response.ok) {
+
             alert(result.message);
+
             return;
+
         }
+
+
+        // Use the ID generated by MySQL
+
+        newSeries.id =
+            result.id;
+
+
+        series.push(
+            newSeries
+        );
+
     }
 
 
@@ -634,6 +750,7 @@ if (
                 endYearInput.disabled =
                     true;
 
+
                 endYearInput.value =
                     "";
 
@@ -657,7 +774,7 @@ if (
 // DELETE SERIES
 // ========================================
 
-function deleteSeries(id) {
+async function deleteSeries(id) {
 
     const series =
         getSeries();
@@ -685,16 +802,43 @@ function deleteSeries(id) {
     }
 
 
+    const response =
+        await fetch(
+            `/api/series/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        alert(result.message);
+
+        return;
+
+    }
+
+
     const updatedSeries =
         series.filter(
             item => item.id !== id
         );
 
 
-    saveSeries(updatedSeries);
+    saveSeries(
+        updatedSeries
+    );
 
 
-    displaySeries(updatedSeries);
+    displaySeries(
+        updatedSeries
+    );
+
 
     displayCurrentlyWatching();
 
@@ -918,6 +1062,7 @@ function displayCurrentlyWatching() {
                         Watch Progress
                     </span>
 
+
                     <span>
                         ${progress.toFixed(0)}%
                     </span>
@@ -1013,7 +1158,9 @@ function changeWatchedEpisode(
         newEpisode;
 
 
-    saveSeries(series);
+    saveSeries(
+        series
+    );
 
 
     // Refresh the dashboard
@@ -1168,10 +1315,19 @@ if (addSeriesLink) {
 // INITIALIZE
 // ========================================
 
-displaySeries();
+async function initialize() {
 
-displayCurrentlyWatching();
+    await loadSeriesFromDatabase();
 
-loadEditData();
+    displaySeries();
 
-updateDashboard();
+    displayCurrentlyWatching();
+
+    loadEditData();
+
+    updateDashboard();
+
+}
+
+
+initialize();
